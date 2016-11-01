@@ -13,3 +13,5 @@
 还有别忘在.gradle文件最上面添加代码（apply plugin: 'com.neenbedankt.android-apt'），不然依赖包找不到,贴图如下:
 
 ![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step2.png?raw=true)
+
+到此依赖添加完成！
