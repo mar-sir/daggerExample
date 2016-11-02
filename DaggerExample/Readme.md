@@ -247,3 +247,64 @@ A a=new A(new B());
         }
     }
 这体现的和案例2一样。就不再说了，至此DaggerFirst已经介绍完毕.你明白了吗？
+#daggersecond
+###第二个例子主要说明@Singleton的作用其实就像单例，只生成一个实例。还有懒加载模式,上图:
+![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step4.png?raw=true)
+在MainActivity里面
+    
+    public class MainActivity extends AppCompatActivity {
+    
+        @Inject
+        People student;
+    
+        @Inject
+        People student1;
+    
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            DaggerPeopleComponent.create().inject(this);
+        }
+    
+        public void test(View view) {
+          if (student.hashCode()==student1.hashCode()){
+              Toast.makeText(this,"student.hashCode()==student1.hashCode()",Toast.LENGTH_SHORT).show();
+              startActivity(new Intent(this,MainActivity1.class));
+              Toast.makeText(this,student.hashCode()+"",Toast.LENGTH_LONG).show();
+          }
+        }
+    }
+student和student2的hashCode是一样的，它们的内存地址也是一样的.其实@Singleton和我新写的@PerActivity作用是一样的;
+######PerActivity
+       
+       /**
+       * 
+       * Created by huangcl on 2016/11/2.
+       * 实体类作用域
+       */
+      @Scope
+      @Retention(RetentionPolicy.RUNTIME)
+      public @interface PerActivity {
+          /**
+           *   Java中提供了四种元注解，专门负责注解其他的注解，分别如下
+           @Retention元注解，表示需要在什么级别保存该注释信息（生命周期）。可选的RetentionPoicy参数包括：
+           RetentionPolicy.SOURCE: 停留在java源文件，编译器被丢掉
+           RetentionPolicy.CLASS：停留在class文件中，但会被VM丢弃（默认）
+           RetentionPolicy.RUNTIME：内存中的字节码，VM将在运行时也保留注解，因此可以通过反射机制读取注解的信息
+      
+           @Target元注解，默认值为任何元素，表示该注解用于什么地方。可用的ElementType参数包括
+           ElementType.CONSTRUCTOR: 构造器声明
+           ElementType.FIELD: 成员变量、对象、属性（包括enum实例）
+           ElementType.LOCAL_VARIABLE: 局部变量声明
+           ElementType.METHOD: 方法声明
+           ElementType.PACKAGE: 包声明
+           ElementType.PARAMETER: 参数声明
+           ElementType.TYPE: 类、接口（包括注解类型)或enum声明
+           @Documented将注解包含在JavaDoc中
+           @Inheried允许子类继承父类中的注解
+           */
+      }
+这里我们看到它是使用了@Scope的一个注释，这个注释的意思就是作用域，在作用域内保持单例，可以直接理解为单例即可。为什么要新增一个呢，
+主要是因为各个组件需要独立出来，因此如果是依赖关系，则需要各自在不同的注释作用域里面,这里@Singleton 就是一个普通的作用域通道，使
+用了作用域@Scope注释的代码，会变成单例模式。 
