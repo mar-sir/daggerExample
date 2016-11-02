@@ -185,7 +185,7 @@ A a=new A(new B());
          }
      }
 在写完这些后点击运行，系统会自动生成一些文件如下图:
-![Dagger2生成文件](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step3.png?raw=true);
+![Dagger2生成文件](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step3.png?raw=true)
 ######PeopleModule1,
       @Module
       //一个完整的的Module必须包含@Module和@Provides
