@@ -23,5 +23,4 @@ public class Teacher extends People {
         this.personInfo = personInfo;
     }
 
-
 }

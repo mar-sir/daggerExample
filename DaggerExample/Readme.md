@@ -15,3 +15,190 @@
 ![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step2.png?raw=true)
 
 到此依赖添加完成！
+##Dagger2的简单使用
+就像这么一个场景   
+    
+    A a=new (new B(),new C());
+像这样的我们通过Dagger2就可以直接
+
+    @Inject
+    A a;
+这样写，是不是看起来少new了很多实例,这就是dagger2强解耦的特性,项目越大越能提会其优越性,而生成实体类的功劳归功于Component,Inject,Module这三大功臣。
+下面让我们尝试和这三货打打交到；首先介绍一下我用的实体类;
+######People类
+     public class People {
+         private String name;
+     }
+######Student类
+     public class Student extends People {
+         private PersonInfo personInfo;
+     
+         public PersonInfo getPersonInfo() {
+             return personInfo;
+         }
+     
+         public void setPersonInfo(PersonInfo people) {
+             this.personInfo = people;
+         }
+     
+         public Student(PersonInfo personInfo) {
+           this.personInfo=personInfo;
+         }
+     
+         @Override
+         public String toString() {
+             return personInfo.toString();
+         }
+     }
+
+######Teacher类
+     public class Teacher extends People {
+         private PersonInfo personInfo;
+     
+         public Teacher(PersonInfo personInfo) {
+             this.personInfo = personInfo;
+         }
+     
+         @Override
+         public String toString() {
+             return personInfo.toString();
+         }
+     
+         public PersonInfo getPersonInfo() {
+             return personInfo;
+         }
+     
+         public void setPersonInfo(PersonInfo personInfo) {
+             this.personInfo = personInfo;
+         }
+     
+     }
+######PersonInfo类
+     public class PersonInfo {
+         private int age;
+     
+         private String sex;
+     
+         public String getSex() {
+             return sex;
+         }
+     
+         public void setSex(String sex) {
+             this.sex = sex;
+         }
+     
+         public int getAge() {
+             return age;
+         }
+     
+         public void setAge(int age) {
+             this.age = age;
+         }
+     
+         public PersonInfo(int age, String sex) {
+             this.age = age;
+             this.sex = sex;
+         }
+      
+          
+         //Commponent会找到Inject注入实例
+         //在Component里面的module没有提供PersonInfo实例时，Dagger2会注入此实例
+         @Inject
+         public PersonInfo(){
+             this.age=20;
+             this.sex="人妖";
+         }
+     
+         @Override
+         public String toString() {
+             return "PersonInfo{" +
+                     "age=" + age +
+                     ", sex='" + sex + '\'' +
+                     '}';
+         }
+     }
+Student,Teacher继承People类，它们持有PersonInfo作为成员对象，这里构造了一个 Student s=new Student(new PersonInfo)这样一个场景类似;
+A a=new A(new B());
+
+####实体类写好之后我们看案例1。我们先写了一个PeopleModule,PeopleComponent,MainActivity.
+###案例1
+######PeopleModule,其中我自己写了一个注解,这和MainActivity里面的Inject不同的IntName对应起来(提供对应的实例).如果MainActivity里面不写对应的IntName,则编译不通过.
+      /**
+       * 如果Dagger2 找不到带@Provides 提供的对应参数的对象,自动调用@Inject参数的构造方法生成的对象对象
+       */
+      @Module//表示本类属于Module
+      public class PeopleModule {
+          @IntName(1)
+          @Provides//表示该方法用来向外提供依赖对象
+          public People provideStudent(PersonInfo personInfo){
+              return new Student(personInfo);
+          }
+          @IntName(2)
+          @Provides//表示该方法用来向外提供依赖对象
+          public People provideTeacher(PersonInfo personInfo){
+              return new Teacher(personInfo);
+          }
+      }
+      
+######PeopleComponent,注入器，有着链接的作用，充当桥梁的角色
+     /**
+      *
+      * 表示Dagger2将会在PeopleModule里面寻找提供的实例
+      */
+     @Component(modules = PeopleModule.class)
+     public interface PeopleComponent {
+         //表示PeopleModule里提供的实例会注入到MainActivity里面
+         void inject(MainActivity activity);
+     }
+######MainActivity，这里面没啥说的,就是Inject得到实例
+     public class MainActivity extends AppCompatActivity {
+         @IntName(1)
+         @Inject
+         People student;
+         @IntName(2)
+         @Inject
+         People teacher;
+         
+         @Override
+         protected void onCreate(Bundle savedInstanceState) {
+             super.onCreate(savedInstanceState);
+             setContentView(R.layout.activity_main);
+             //两种注入方式都行，在编译后，会自动生一些文档，在注入的时候Dagger会找到PersonInfo类里面@Inject提供出来的构造实例。所以不会导致PeopleModule
+             //类里面@Provides注解的方法找不到PersonInfo的实例；
+             //Dagger注入某个实例，则需要@Inject或者@Provides注解.
+             //找不到带@Provides 提供的对应参数的对象,自动调用@Inject参数的构造方法生成的对象对象
+             //DaggerPeopleComponent.create().inject(this);
+             DaggerPeopleComponent.builder().peopleModule(new PeopleModule()).build().inject(this);
+         }
+     
+     
+         public void tstStudent(View view) {
+             Toast.makeText(this, student.toString(), Toast.LENGTH_SHORT).show();
+         }
+     
+         public void tstTeacher(View view) {
+             Toast.makeText(this, teacher.toString(), Toast.LENGTH_SHORT).show();
+         }
+     
+         public void jumpActivity(View view) {
+             startActivity(new Intent(this,MainActivity1.class));
+         }
+     }
+在写完这些后点击运行，系统会自动生成一些文件如下图:
+![Dagger2生成文件](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step3.png?raw=true);
+######PeopleModule1,
+      @Module
+      //一个完整的的Module必须包含@Module和@Provides
+      public class PeopleModule1 {
+          @Provides //注明该方法用来提供依赖对象
+          public People provideStudent(){
+              PersonInfo personInfo = new PersonInfo(20,"楼主1");
+              return new Student(personInfo);
+          }
+          @Named("teacher")
+          @Provides
+          public People provideTeacher(){
+              PersonInfo personInfo = new PersonInfo(22,"楼主11");
+              return new Student(personInfo);
+          }
+      }
