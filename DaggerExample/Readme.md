@@ -186,7 +186,13 @@ A a=new A(new B());
      }
 在写完这些后点击运行，系统会自动生成一些文件如下图:
 ![Dagger2生成文件](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step3.png?raw=true)
-######PeopleModule1,
+在DaggerPeopleComponent.builder().peopleModule(new PeopleModule()).build().inject(this)被调用后，就像ButterKnife的ButterKnife.bind(this);它会帮
+们自动绑定控件,这里的案例1,Component会在Module里寻找@Provides提供的实例,找到了两个Provides，但Provides的方法需要personInfo实例, 而PeopleModule
+没有Provides出PersonInfo的实例，dagger则再去寻找对应的@Inject，正好在PersonInfo类里面提供了这么一个实例(personInfo),所以不会导致PeopleModule
+里面@Provides注解的方法找不到PersonInfo的实例而报错.
+
+###案例2
+######PeopleModule1代码。
       @Module
       //一个完整的的Module必须包含@Module和@Provides
       public class PeopleModule1 {
@@ -202,3 +208,42 @@ A a=new A(new B());
               return new Student(personInfo);
           }
       }
+其他类代码大同小异。就是PeopleComponent1依赖的Module换成PeopleMoudle1.这个Module体现了，Dagger会通过@Name指定他要提取的是哪个实例。
+###案例3
+######PeopleModule2代码。
+     @Module
+     public class PeopleModule2 {
+         @Provides
+         public People providePeople(PersonInfo personInfo){
+             return new Teacher(personInfo);
+         }
+     
+         @Provides
+         public PersonInfo providePersonInfo(){
+             return new PersonInfo(22,"楼主2");
+         }
+     
+     }
+这里Module帮我们提供了一个PersonInfo实例，那么Dagger则不会在去找Inject的PersonInfo实例.
+###案例4
+######PeopleModule3代码。
+    @Module
+    public class PeopleModule3 {
+        @Named("Student")
+        @Provides
+        public People provideStudent(PersonInfo personInfo){
+            personInfo.setAge(24);
+            personInfo.setSex("男同学");
+            return new Student(personInfo);
+        }
+    
+    
+        @Named("Teacher")
+        @Provides
+        public People provideTeacher(PersonInfo personInfo){
+            personInfo.setAge(24);
+            personInfo.setSex("女老师");
+            return new Teacher(personInfo);
+        }
+    }
+这体现的和案例2一样。就不再说了，至此DaggerFirst已经介绍完毕.你明白了吗？
