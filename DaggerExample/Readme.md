@@ -248,7 +248,8 @@ A a=new A(new B());
     }
 这体现的和案例2一样。就不再说了，至此DaggerFirst已经介绍完毕.你明白了吗？
 #daggersecond
-###第二个例子主要说明@Singleton的作用其实就像单例，只生成一个实例。还有懒加载模式,上图:
+###第二个例子主要说明@Singleton的作用其实就像单例，只生成一个实例。还有懒加载模式:
+###Singleton
 ![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step4.png?raw=true)
 在MainActivity里面
     
@@ -307,4 +308,123 @@ student和student2的hashCode是一样的，它们的内存地址也是一样的
       }
 这里我们看到它是使用了@Scope的一个注释，这个注释的意思就是作用域，在作用域内保持单例，可以直接理解为单例即可。为什么要新增一个呢，
 主要是因为各个组件需要独立出来，因此如果是依赖关系，则需要各自在不同的注释作用域里面,这里@Singleton 就是一个普通的作用域通道，使
-用了作用域@Scope注释的代码，会变成单例模式。 
+用了作用域@Scope注释的代码，会变成单例模式。
+###懒加载，比较简单，一张图让你明白:
+![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step5.png?raw=true)
+
+#Daggersecond
+###主要简介dependencies,modules={Module1.class,Module2.class...},的作用和用途.
+####modules={Module1.class,Module2.class...}
+在一个容器（Activity）中,如果要用到的不止Module1里所提供的Provides，还要用到Module2等等这种情况,我们就可以这么写：
+######StudentComponent
+    @Component(dependencies = BaseComponent.class, modules = {TeacherModule.class, StudentModule.class})
+    public interface StudentComponent {
+        void inject(MainActivity mainActivity);
+    }
+######StudentModule
+  
+     @Provides
+     public Student provideStudent(PersonInfo personInfo) {
+        return new Student(personInfo);
+     }
+  
+    
+     @Provides
+     public PersonInfo providePersonInfo() {
+        return new PersonInfo(100, "呵呵哈")
+     }
+######TeacherModule
+    @Provides
+        public Teacher provideTeacher(PersonInfo personInfo) {
+            return new Teacher(personInfo);
+        }
+######MainActivity
+        
+        @Inject
+        Teacher teacher;
+        @Inject
+        Student student;
+    
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            DaggerStudentComponent.builder()
+                    .build()
+                    .inject(this);
+        }
+    
+        public void tstDagger(View view) {
+            Toast.makeText(this, student.toString() + "\t" + teacher.toString() + "\t" + man.toString(), Toast.LENGTH_LONG).show();
+        }
+这样我们就能得到其他Module提供的实例，功能类似于把所有Provides集中了起来。
+####dependencies
+为了演示dependencies的用法,我写了一个独立的实体类Man,还有base包里面的BaseApplicationModule，BaseComponent，MyApplication。
+这稍微接近一般Dagger在项目里运用的样子了。
+假如我要通过注入拿到Man的实例,而我又不直接拿，而是通过别的component注入，那该怎么办呢?,dagger提拱了一个组建依赖,dependencies.接着
+贴代码.
+######Man(这里可以换成其他，比如Retrofit的Api，常用的实体类等等)
+     
+     private String job;
+        public Man(String job) {
+            this.job = job;
+        }
+    
+        @Override
+        public String toString() {
+            return "Man{" +
+                    "job='" + job + '\'' +
+                    '}';
+        }
+######BaseApplicationModule提供了Man,和context。
+     
+     @Module
+     public class BaseApplicationModule {
+     
+         private MyApplication myApplication;
+     
+         public BaseApplicationModule(MyApplication myApplication) {
+             this.myApplication = myApplication;
+         }
+     
+         @Singleton
+         @Provides
+         public Context getContext() {
+             return myApplication;
+         }
+     
+         @Provides
+         public Man providesPersoninfo() {
+             return new Man("huangsss");
+         }
+     
+     
+     }
+######BaseComponent
+    @Component(modules = BaseApplicationModule.class)
+    public interface BaseComponent {
+        void inject(MyApplication myApplication);
+        //这里很关键,如果不提供，则后面编译不会被通过
+        Man getMan();
+    }
+######MyApplication这没啥说的，就是干初始化的活
+    
+    BaseComponent baseComponent;
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        baseComponent = DaggerBaseComponent.builder()
+                .baseApplicationModule(new BaseApplicationModule(this))
+                .build();
+        baseComponent.inject(this);
+    }
+
+    public BaseComponent getBaseComponent() {
+        return baseComponent;
+    }
+写到这里，我们怎么得到Man的实例呢，其实很简单，只要你在写Component的时候加一个依赖就好了，如图
+![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step6.png?raw=true)
+然后我们在Component注入的容器（MainActivity）里这样写:
+![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step7.png?raw=true)

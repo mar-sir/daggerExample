@@ -1,5 +1,6 @@
 package module;
 
+import bean.People;
 import bean.Student;
 import dagger.Module;
 import dagger.Provides;
@@ -11,7 +12,7 @@ import dagger.Provides;
 public class LazyLoadModule {
 
     @Provides
-    public Student provideStudent(){
+    public People provideStudent(){
         return new Student();
     }
 }

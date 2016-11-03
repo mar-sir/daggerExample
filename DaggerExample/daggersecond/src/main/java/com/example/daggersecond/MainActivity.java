@@ -35,6 +35,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void lazyLoad(View view) {
-        
+        startActivity(new Intent(this,LazyLoadActivity.class));
     }
 }

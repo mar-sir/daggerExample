@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import bean.People;
+import component.DaggerLazyLoadComponent;
 import dagger.Lazy;
 
 public class LazyLoadActivity extends AppCompatActivity {
@@ -22,5 +23,7 @@ public class LazyLoadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lazy_load);
         DaggerLazyLoadComponent.create().inject(this);
+        People people=student.get();
+        People people1=student1.get();
     }
 }

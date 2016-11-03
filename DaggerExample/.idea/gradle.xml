@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/daggerfirst" />
             <option value="$PROJECT_DIR$/daggersecond" />
+            <option value="$PROJECT_DIR$/daggerthird" />
           </set>
         </option>
         <option name="myModules">
@@ -20,6 +21,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/daggerfirst" />
             <option value="$PROJECT_DIR$/daggersecond" />
+            <option value="$PROJECT_DIR$/daggerthird" />
           </set>
         </option>
       </GradleProjectSettings>

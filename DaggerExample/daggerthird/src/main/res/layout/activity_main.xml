@@ -4,17 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.daggersecond.MainActivity">
+    tools:context="com.example.daggerthird.MainActivity">
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试和跳转"
-        android:onClick="test"/>
+        android:text="测试Dagger"
+        android:onClick="tstDagger" />
+
     <Button
         android:layout_width="match_parent"
-        android:text="懒加载"
-        android:onClick="lazyLoad"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="跳转"
+        android:onClick="jump" />
 </LinearLayout>
