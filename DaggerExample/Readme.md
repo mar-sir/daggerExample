@@ -428,3 +428,6 @@ student和student2的hashCode是一样的，它们的内存地址也是一样的
 ![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step6.png?raw=true)
 然后我们在Component注入的容器（MainActivity）里这样写:
 ![](https://github.com/mar-sir/daggerExample/blob/master/DaggerExample/daggerfirst/imgs/step7.png?raw=true)
+至此，Dagger2的简单使用已介绍完毕，希望对你有所帮助。
+####代码
+[代码地址传送](https://github.com/mar-sir/daggerExample)
